@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #EDIT ~/.bashrc
 #source .my_bash
@@ -8,6 +9,28 @@
 b_bash_version () {
     echo "Version 1.1"
 }
+
+
+export CDLDEIMPORTED=1
+
+# Go into the selected component source
+cdlde () {
+	if [ "$#" -ne 1 ]; then
+		cd /opt/maxim/LDE/source
+	else
+		cd $(recurse @repo_path -- $1) || cd /opt/maxim/LDE/source; cd $(recurse @repo_path -- $1)
+    fi
+}
+
+cdout () {
+	if [ "$#" -ne 1 ]; then
+		cd /opt/maxim/LDE/output_tools
+	else
+		cd $(recurse @repo_path -- $1) || cd /opt/maxim/LDE/output_mini; cd $(recurse @repo_path -- $1)
+    fi
+}
+
+
 
 bkernel () {
 ldecmd build kernel;
@@ -23,12 +46,18 @@ ldecmd build kernel;
 
 broot () {
 ldecmd build addons;
-ldecmd make -M-w =basic -- all;
-ldecmd make =hcr4 -- all;
-ldecmd make =basic -- install;
-ldecmd make =hcr4 -- install;
-ldecmd build buildroot;
-ldecmd build rootfs;
+#ldecmd make -M-w =basic -- all;
+#ldecmd make =hcr4 -- all;
+#ldecmd make =basic -- install;
+#ldecmd make =hcr4 -- install;
+#Here need to rm the output/user/rootfs
+#maybe just install rootfs/install addon/install rootfs again
+ldecmd install rootfs;
+ldecmd install kernel;
+ldecmd install addon;
+ldecmd install rootfs;
+#ldecmd build buildroot;
+#ldecmd build rootfs;
 
     if [ -z "$1" ]
              then
@@ -37,19 +66,26 @@ ldecmd build rootfs;
              else
                 echo "-Parameter 1 is \"$1\"."
                 copy2tftp "user/images/rootfs.ubifs.img" "$1"
+				echo "$1"/rootfs.ubifs.img
              fi
 }
 
-
+send_scp_cm () {
+	/opt/maxim/tools/FLORA/Host/customer_scripts/scripts/sendscp.sh /dev/ttyUSB0 "$@";
+}
 
 # make SCP U-BOOT function
-make_scp () {   /opt/maxim/tools/PACKAGE_FLORA_1.2.4/Host/customer_scripts/scripts/build_application.sh "$@"/system/u-boot/u-boot.bin.sbin "$@"/make-scp-boot.scp /opt/maxim/tools/PACKAGE_FLORA_1.2.4/Host/customer_scripts/keys/maximtestcrk.key;}
+#make_scp () {   /opt/maxim/tools/PACKAGE_FLORA_1.2.4/Host/customer_scripts/scripts/build_application.sh "$@"/system/u-boot/u-boot.bin.sbin "$@"/make-scp-boot.scp /opt/maxim/tools/PACKAGE_FLORA_1.2.4/Host/customer_scripts/keys/maximtestcrk.key;}
 
 
+#make_scp_exp () {   /opt/maxim/tools/FLORA/PACKAGE_FLORA_1.2.6/Host/customer_scripts/scripts/build_application.sh --soc=B5 "$@"/system/u-boot/u-boot.bin.sbin "$@"/exp-scp-boot.scp /opt/maxim/tools/FLORA/PACKAGE_FLORA_1.2.6/Host/customer_scripts/keys/maximtestcrk.key;}
+
+
+make_scp () {   /opt/maxim/tools/FLORA/Host/customer_scripts/scripts/build_application.sh --soc=B5 "$@"/system/u-boot/u-boot.bin.sbin "$@"/exp-scp-boot.scp /opt/maxim/tools/FLORA/Host/customer_scripts/keys/maximtestcrk.key;}
 
 clean_eclipse () {
-    rm /opt/maxim/tools/workspace-lde/.metadata/.plugins/org.eclipse.core.resources/.snap
-    /opt/maxim/tools/eclipse/eclipse &
+    rm /opt/maxim/workspace-lde/.metadata/.plugins/org.eclipse.core.resources/.snap
+    /opt/maxim/eclipse/eclipse &
 }
 
 new_uboot () {
@@ -84,7 +120,7 @@ copy2tftp () {
     cp "$1" /tftpboot/"$2"/"$SRC_NAME"
 }
 
-source /opt/maxim/tools/cdlde.sh
+#source /opt/maxim/tools/cdlde.sh
 
 # The following lines have been added by the setupbuild.sh script.
 #if [ -f /opt/maxim/tools/.buildvar ] ; then
