@@ -56,6 +56,7 @@ ldecmd install rootfs;
 ldecmd install kernel;
 ldecmd install addon;
 ldecmd install rootfs;
+ldecmd build rootfs;
 #ldecmd build buildroot;
 #ldecmd build rootfs;
 
@@ -68,6 +69,31 @@ ldecmd install rootfs;
                 copy2tftp "user/images/rootfs.ubifs.img" "$1"
 				echo "$1"/rootfs.ubifs.img
              fi
+}
+
+brefreshroot () {
+ldecmd defconfig --config=hcr4-v1-B5 rootfs;
+ldecmd defconfig --config=hcr4-v1-B5 buildroot;
+ldecmd defconfig --config=hcr4-v1-B5 addon;
+##broot($1);
+}
+
+b_all () {
+	ldecmd build kernel;
+	ldecmd build addon;
+	ldecmd install addon;
+	ldecmd install kernel;
+
+	ldecmd build rootfs;
+	ldecmd build kernel;
+    if [ -z "$1" ]
+		then
+			echo "-Parameter 1 is missing"
+			exit 0
+	else
+		echo "-Parameter 1 is \"$1\"."
+		copy2tftp "system/linux/arch/arm/boot/uImage" "$1"
+	fi
 }
 
 send_scp_cm () {
@@ -126,6 +152,18 @@ copy2tftp () {
 #if [ -f /opt/maxim/tools/.buildvar ] ; then
 #    . /opt/maxim/tools/.buildvar
 #fi
+
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+
 
 shr;
 
