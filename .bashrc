@@ -107,4 +107,4 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 fi
 
 # User defined updates
-source .my_bash
+source my_scripts/.my_bash
