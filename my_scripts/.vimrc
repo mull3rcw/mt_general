@@ -124,8 +124,10 @@ set tm=500
 syntax enable
 
 colorscheme desert
-set background=dark
-
+"colorscheme badwolf
+"set background=dark
+"set background=darkblue
+highlight Normal ctermfg=grey ctermbg=black
 " Set extra options when running in GUI mode
 if has("gui_running")
     set guioptions-=T
